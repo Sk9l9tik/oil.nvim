@@ -653,7 +653,7 @@ local function render_buffer(bufnr, opts)
     jump = false,
     jump_first = false,
   })
-  local scheme = util.parse_url(bufname)
+  local scheme, dir = util.parse_url(bufname)
   local adapter = util.get_adapter(bufnr, true)
   if not scheme or not adapter then
     return false
@@ -682,9 +682,39 @@ local function render_buffer(bufnr, opts)
     col_align[i + 1] = conf and conf.align or "left"
   end
 
+  ---@param os_path nil|string
+  ---@return nil|table
+  local function safe_stat(os_path)
+    if not os_path or os_path == "" or adapter.name ~= "files" then
+      return nil
+    end
+    return uv.fs_stat(os_path)
+  end
+
+  local os_dir = dir and fs.posix_to_os_path(dir):gsub("[/\\]+$", "")
+
+  if M.should_display(".", bufnr) then
+    local cols = M.format_entry_cols(
+      { 0, ".", "directory", { stat = safe_stat(os_dir) } },
+      column_defs,
+      col_width,
+      adapter,
+      true,
+      bufnr
+    )
+    table.insert(line_table, cols)
+  end
+
   if M.should_display("..", bufnr) then
-    local cols =
-      M.format_entry_cols({ 0, "..", "directory" }, column_defs, col_width, adapter, true, bufnr)
+    local parent_path = os_dir and vim.fn.fnamemodify(os_dir, ":h")
+    local cols = M.format_entry_cols(
+      { 0, "..", "directory", { stat = safe_stat(parent_path) } },
+      column_defs,
+      col_width,
+      adapter,
+      true,
+      bufnr
+    )
     table.insert(line_table, cols)
   end
 
