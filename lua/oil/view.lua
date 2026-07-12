@@ -22,13 +22,19 @@ local last_cursor_entry = {}
 ---@return boolean display
 ---@return boolean is_hidden Whether the file is classified as a hidden file
 M.should_display = function(name, bufnr)
+  if name == "." then
+    return config.view_options.show_current_dir, false
+  elseif name == ".." then
+    return config.view_options.show_parent_dir, false
+  end
+
   if config.view_options.is_always_hidden(name, bufnr) then
     return false, true
-  else
-    local is_hidden = config.view_options.is_hidden_file(name, bufnr)
-    local display = config.view_options.show_hidden or not is_hidden
-    return display, is_hidden
   end
+
+  local is_hidden = config.view_options.is_hidden_file(name, bufnr)
+  local display = config.view_options.show_hidden or not is_hidden
+  return display, is_hidden
 end
 
 ---@param bufname string
@@ -693,6 +699,7 @@ local function render_buffer(bufnr, opts)
 
   local os_dir = dir and fs.posix_to_os_path(dir):gsub("[/\\]+$", "")
 
+
   if M.should_display(".", bufnr) then
     local cols = M.format_entry_cols(
       { 0, ".", "directory", { stat = safe_stat(os_dir) } },
@@ -1030,3 +1037,4 @@ M.render_buffer_async = function(bufnr, opts, callback)
 end
 
 return M
+

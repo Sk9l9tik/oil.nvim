@@ -89,6 +89,9 @@ local default_config = {
     is_always_hidden = function(name, bufnr)
       return false
     end,
+    -- This funciton defines will show ./ and ../ or not
+    show_current_dir = false,
+    show_parent_dir  = false,
     -- Sort file names with numbers in a more intuitive order for humans.
     -- Can be "fast", true, or false. "fast" will turn it off for large directories.
     natural_order = "fast",
