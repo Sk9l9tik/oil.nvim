@@ -6,6 +6,17 @@ local M = {}
 
 ---@param actions oil.Action[]
 ---@return boolean
+local function is_only_deletes(actions)
+  for _, action in ipairs(actions) do
+    if action.type ~= "delete" then
+      return false
+    end
+  end
+  return #actions > 0
+end
+
+---@param actions oil.Action[]
+---@return boolean
 local function is_simple_edit(actions)
   local num_create = 0
   local num_copy = 0
@@ -64,6 +75,11 @@ M.show = vim.schedule_wrap(function(actions, should_confirm, cb)
     return
   end
   if should_confirm == nil and config.skip_confirm_for_simple_edits and is_simple_edit(actions) then
+    cb(true)
+    return
+  end
+
+  if should_confirm == nil and config.skip_confirm_for_deletions  and is_only_deletes(actions) then
     cb(true)
     return
   end
