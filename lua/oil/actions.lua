@@ -225,6 +225,59 @@ M.tcd = {
   end,
 }
 
+M.cd_to = {
+  desc = "Prompt for a directory in the command line, :cd to it, and open oil there",
+  callback = function(opts)
+    opts = opts or {}
+    local cmd = "cd"
+    if opts.scope == "tab" then
+      cmd = "tcd"
+    elseif opts.scope == "win" then
+      cmd = "lcd"
+    end
+
+    local default_dir
+    if opts.scope == "tab" then
+      default_dir = vim.fn.getcwd(-1, 0)
+    elseif opts.scope == "win" then
+      default_dir = vim.fn.getcwd(0)
+    else
+      default_dir = vim.fn.getcwd()
+    end
+    default_dir = util.addslash(default_dir)
+
+    vim.ui.input({
+      prompt = "New CWD: ",
+      default = default_dir,
+      completion = "dir",
+    }, function(input)
+      if not input or input == "" then
+        return
+      end
+      local dir = util.addslash(vim.fn.fnamemodify(input, ":p"))
+      if vim.fn.isdirectory(dir) == 0 then
+        vim.notify(string.format("Not a directory: %s", dir), vim.log.levels.ERROR)
+        return
+      end
+      vim.cmd({ cmd = cmd, args = { dir } })
+      if not opts.silent then
+        vim.notify(string.format("CWD: %s", dir), vim.log.levels.INFO)
+      end
+      oil.open(dir)
+    end)
+  end,
+  parameters = {
+    scope = {
+      type = 'nil|"tab"|"win"',
+      desc = "Scope of the directory change (e.g. use |:tcd| or |:lcd|)",
+    },
+    silent = {
+      type = "boolean",
+      desc = "Do not show a message when changing directories",
+    },
+  },
+}
+
 M.open_cwd = {
   desc = "Open oil in Neovim's current working directory",
   callback = function()
