@@ -79,7 +79,7 @@ M.show = vim.schedule_wrap(function(actions, should_confirm, cb)
     return
   end
 
-  if should_confirm == nil and config.skip_confirm_for_deletions  and is_only_deletes(actions) then
+  if should_confirm == nil and config.skip_confirm_for_delete and is_only_deletes(actions) then
     cb(true)
     return
   end

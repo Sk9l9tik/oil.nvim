@@ -31,7 +31,7 @@ local default_config = {
   -- Skip the confirmation popup for simple operations (:help oil.skip_confirm_for_simple_edits)
   skip_confirm_for_simple_edits = false,
   -- Skip the confirmation popup for deletion operations TODO: (:help oil.skip_confirm_for_deletions)
-  skip_confirm_for_deletinos = false,
+  skip_confirm_for_delete = false,
   -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
   -- (:help prompt_save_on_select_new_entry)
   prompt_save_on_select_new_entry = true,
